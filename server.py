@@ -12,9 +12,13 @@ def main(address: str, port: int):
         print("User " + client_address[0] + " connected to the server.")
         while True:
             # buffer size - vobec neviem adekvatnu velkost bude sa treba pohrat
-            data = connection.recv(32)
+            data = connection.recv(256)
             if data:
                 process_data(data, client_address)
+            else:
+                print("User " + client_address[0] +
+                      " has disconnected from the server.")
+                break
 
 
 if __name__ == "__main__":
