@@ -11,7 +11,7 @@ def main(address: str, port: int):
                 if data:
                     print(f"sender: {client_address}> {data}")
                     print("sending back!")
-                    sock.sendall(data)
+                    sock.sendall()
                 break
     except KeyboardInterrupt:
         sock.close()

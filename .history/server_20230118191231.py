@@ -10,8 +10,7 @@ def main(address: str, port: int):
                 data = connection.recv(32) # buffer size - vobec neviem adekvatnu velkost bude sa treba pohrat
                 if data:
                     print(f"sender: {client_address}> {data}")
-                    print("sending back!")
-                    sock.sendall(data)
+                    print()
                 break
     except KeyboardInterrupt:
         sock.close()
