@@ -9,14 +9,12 @@ def main(address: str, port: int):
     sock.listen(1)
     while True:
         connection, client_address = sock.accept()
+        print("User " + client_address[0] + " connected to the server.")
         while True:
             # buffer size - vobec neviem adekvatnu velkost bude sa treba pohrat
             data = connection.recv(32)
             if data:
                 process_data(data, client_address)
-                print("Sent back!")
-                connection.sendall(data)
-            break
 
 
 if __name__ == "__main__":
