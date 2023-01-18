@@ -1,3 +1,7 @@
+def process_data(data, client_address):
+    print(client_address[0] + " > " + data.decode("utf-8"))
+
+
 def main(address: str, port: int):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (address, port)
@@ -6,12 +10,14 @@ def main(address: str, port: int):
     while True:
         connection, client_address = sock.accept()
         while True:
-            data = connection.recv(32) # buffer size - vobec neviem adekvatnu velkost bude sa treba pohrat
+            # buffer size - vobec neviem adekvatnu velkost bude sa treba pohrat
+            data = connection.recv(32)
             if data:
-                print(f"sender: {client_address}> {data}")
-                print("sending back!")
+                process_data(data, client_address)
+                print("Sent back!")
                 connection.sendall(data)
             break
+
 
 if __name__ == "__main__":
     import socket
