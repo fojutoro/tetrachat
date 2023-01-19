@@ -1,2 +1,3 @@
-# tetrachat
+# Tetrachat
+
 Tetrachat messenger
