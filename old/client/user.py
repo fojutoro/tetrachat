@@ -20,5 +20,5 @@ if __name__ == "__main__":
     import socket
     import sys
     import time
-    from config import host, port
+    from old.config import host, port
     main(host, port)
