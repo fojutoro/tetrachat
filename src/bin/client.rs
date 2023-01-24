@@ -1,28 +1,18 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::str::from_utf8;
+use rand::{Rng};
 
 fn main() {
     menu();
-    match TcpStream::connect("192.168.1.6:8080") {
-        Ok(stream) => loop {
-            print!(">");
-            let msg = get_string();
-            let size = msg.len();
-            println!("{}", handle_communication(msg, &stream, size));
-        },
-        Err(e) => {
-            println!("Failed to connect: {}", e);
-        }
-    }
 }
 
-fn handle_communication(msg: String, mut stream: &TcpStream, size: usize) -> String{
+fn handle_communication(msg: String, mut stream: &TcpStream) -> String{
     let msg = msg.as_bytes();
     stream.write(msg).unwrap();
 
     let mut data = [0 as u8; 512];
-    stream.read(&mut data[0..size]).unwrap();
+    stream.read(&mut data).unwrap();
     return from_utf8(&data).unwrap().to_string();
 }
 
@@ -32,7 +22,7 @@ fn menu() {
     if x.trim() == "1" {
         create_acc()
     } else if x.trim() == "2" {
-        println!("In development")
+        log_in()
     } else {
         println!("Please input a valid option");
         menu();
@@ -57,7 +47,8 @@ fn create_acc(){
         create_acc();
     }
 
-    let secret = String::from("1234123412341234");
+    let secret: i64 = rand::thread_rng().gen_range(1000_0000_0000_0000..=9999_9999_9999_9999);
+    let secret: String = secret.to_string();
 
     println!("Your private key:\n{}", secret);
 
@@ -67,10 +58,10 @@ fn create_acc(){
 
     let resp = send_req(req);
 
-    let public_id = &resp[3..];
+    let public_id = &resp[4..];
 
     println!("Your public id: {}", public_id);
-    // println!("{}", resp)
+    menu();
 }
 
 // TODO: do the hashing
@@ -79,13 +70,43 @@ fn generate_hash(secret: String) -> String{
 }
 
 fn send_req(req: String) -> String {
-    match TcpStream::connect("192.168.1.6:8080") {
+    match TcpStream::connect("localhost:8080") {
         Ok(stream) => {
-            let response = handle_communication(req, &stream, 37);
+            let response = handle_communication(req, &stream);
             return response;
         },
         Err(e) => {
             return String::from(format!("{}", e));
+        }
+    }
+}
+
+fn log_in() {
+    println!("Please input your private key: ");
+    let secret = generate_hash(get_string().trim().to_string());
+    let req = String::from(format!("ALR-{}", secret));
+    let resp = send_req(req);
+
+    if &resp.as_str()[0..3] == "ALS" {
+        handle_comms();
+    } else {
+        println!("Invalid key!");
+        menu();
+    }
+}
+
+fn handle_comms() {
+    match TcpStream::connect("localhost:8080") {
+        Ok(mut stream) => {
+            loop {
+                println!("Who do you want to send the message to?");
+                let reciever_uuid = get_string();
+                let req = format!("MSR-{}-{}", reciever_uuid, get_string());
+                stream.write(req.as_bytes()).unwrap();
+            }
+        },
+        Err(e) => {
+            println!("Failed to connect: {}", e);
         }
     }
 }
