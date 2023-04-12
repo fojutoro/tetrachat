@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+// import 'package:tetrachat/lib/main.dart';
 import 'package:tetrachat/main.dart';
 
 void main() {

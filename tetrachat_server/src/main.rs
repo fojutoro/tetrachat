@@ -1,22 +1,24 @@
 use std::net::{TcpListener};
+use std::sync::{Arc};
 use std::thread;
 
-#[path = "./server-modules/database.rs"] mod database;
-#[path = "server-modules/requests.rs"] mod requests;
+#[path = "./server-modules/database.rs"]
+mod database;
+
+#[path = "server-modules/requests.rs"]
+mod requests;
 
 fn main() {
-    // let mut users: Dict<User> = Dict::<User>::new();
+    let user_list = Arc::new(requests::UserList::new());
     let listener = TcpListener::bind("localhost:8080").unwrap();
+
     for stream in listener.incoming() {
-        // When a client joins for the first time he has to send an ACR - Account creation request. Then we create an account for him.
         match stream {
             Ok(stream) => {
-                println!(
-                    "local socket address: {}",
-                    stream.local_addr().unwrap().ip(),
-                );
-                thread::spawn(move||{
-                    requests::handle_client(stream)
+                let user_list_clone = user_list.clone();
+                thread::spawn(move || {
+                    // Handle the client request
+                    requests::handle_client(stream, user_list_clone);
                 });
             }
             Err(e) => {
@@ -24,5 +26,6 @@ fn main() {
             }
         }
     }
+
     drop(listener);
 }
